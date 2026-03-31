@@ -189,7 +189,7 @@
           </div>
           <div class="form-group">
             <label class="form-label">Company code</label>
-            <input class="form-input" id="login-code" type="password" placeholder="Your company secret code">
+            <input class="form-input" id="login-code" type="text" placeholder="Your company secret code">
           </div>
           <div class="form-group">
             <label class="form-label">Your role</label>
@@ -219,12 +219,12 @@
           </div>
           <div class="form-group">
             <label class="form-label">Choose a company code</label>
-            <input class="form-input" id="reg-code" type="password" placeholder="Secret code shared with your staff">
+            <input class="form-input" id="reg-code" type="text" placeholder="Secret code shared with your staff">
             <div class="form-hint">Share this code only with your handler and manager.</div>
           </div>
           <div class="form-group">
             <label class="form-label">Confirm code</label>
-            <input class="form-input" id="reg-code2" type="password" placeholder="Repeat the code">
+            <input class="form-input" id="reg-code2" type="text" placeholder="Repeat the code">
           </div>
           <button class="btn-primary" onclick="doRegister()">Create Company Account →</button>
           <div class="err-msg" id="reg-err"></div>
@@ -244,7 +244,7 @@
       <span class="live-badge"><span class="live-dot"></span>Live</span>
     </div>
     <div class="topbar-right">
-      <span class="company-pill" id="h-company-name"></span>
+      <span class="company-pill"><span style="opacity:0.6;font-weight:400;">Company:</span> <span id="h-company-name"></span></span>
       <span class="role-pill handler">Handler</span>
       <button class="btn-logout" onclick="logout()">Logout</button>
     </div>
@@ -255,7 +255,21 @@
       <div class="add-row">
         <div class="inline-field">
           <span class="inline-label">Owner name</span>
-          <input class="inline-input" id="h-name" type="text" placeholder="e.g. Sara Ahmed">
+          <input class="inline-input" id="h-name" type="text" placeholder="e.g. Mohamed Fouad" list="names-list" autocomplete="off">
+          <datalist id="names-list">
+            <option value="Mohamed Fouad">
+            <option value="Ahmed Hassan">
+            <option value="Sara Ali">
+            <option value="Khaled Omar">
+            <option value="Mona Tarek">
+            <option value="Youssef Nabil">
+            <option value="Nour Ibrahim">
+            <option value="Rania Mostafa">
+            <option value="Tamer Samir">
+            <option value="Dina Ashraf">
+            <option value="Omar Khalil">
+            <option value="Hana Adel">
+          </datalist>
         </div>
         <div class="inline-field">
           <span class="inline-label">Job / unit</span>
@@ -282,7 +296,7 @@
       <span class="live-badge"><span class="live-dot"></span>Live</span>
     </div>
     <div class="topbar-right">
-      <span class="company-pill" id="m-company-name"></span>
+      <span class="company-pill"><span style="opacity:0.6;font-weight:400;">Company:</span> <span id="m-company-name"></span></span>
       <span class="role-pill manager">Manager</span>
       <button class="btn-logout" onclick="logout()">Logout</button>
     </div>
@@ -290,7 +304,7 @@
   <div class="dash-content">
     <div class="queue-card">
       <div class="queue-header">
-        <span class="queue-title">Owners awaiting meeting</span>
+        <span class="queue-title">Awaiting Meeting List</span>
         <span class="count-badge" id="m-count">0</span>
       </div>
       <div class="queue-list" id="m-queue"></div>
@@ -538,7 +552,10 @@ function createCardEl(o, idx, showActions) {
         Arrived ${clockTime(o.createdAt)} &middot; <span class="ago-label">${timeAgo(o.createdAt)}</span>
       </div>
     </div>
-    <span class="status-tag ${o.status}">${statusLabels[o.status]}</span>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;">
+      <span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;color:var(--text3);">Status</span>
+      <span class="status-tag ${o.status}">${statusLabels[o.status]}</span>
+    </div>
     ${showActions ? `
     <div class="action-group">
       <button class="act-btn acc" onclick="setStatus('${o.id}','accepted','${safeName}')">Accept</button>
@@ -553,7 +570,6 @@ function createCardEl(o, idx, showActions) {
 }
 
 function updateCardEl(el, o) {
-  // Only update status-related parts — never touch the whole card
   STATUS_CLASSES.forEach(s => el.classList.remove(s));
   el.classList.add(o.status);
   const tag = el.querySelector('.status-tag');
