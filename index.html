@@ -114,18 +114,18 @@
   .empty-icon { font-size: 32px; margin-bottom: 0.5rem; opacity: 0.4; }
 
   /* ---- OWNER CARD ---- */
-  .owner-card { border-radius: var(--radius); padding: 12px 14px; border: 1px solid var(--border); display: flex; align-items: center; gap: 12px; transition: background 0.35s ease, border-color 0.35s ease; animation: slideIn 0.25s ease; }
+  .client-card { border-radius: var(--radius); padding: 12px 14px; border: 1px solid var(--border); display: flex; align-items: center; gap: 12px; transition: background 0.35s ease, border-color 0.35s ease; animation: slideIn 0.25s ease; }
   @keyframes slideIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
-  .owner-card.pending { background: var(--surface2); border-color: var(--border); }
-  .owner-card.accepted { background: var(--green-light); border-color: var(--green-mid); }
-  .owner-card.waiting { background: var(--amber-light); border-color: var(--amber-mid); }
-  .owner-card.cancelled { background: var(--red-light); border-color: var(--red-mid); }
+  .client-card.pending { background: var(--surface2); border-color: var(--border); }
+  .client-card.accepted { background: var(--green-light); border-color: var(--green-mid); }
+  .client-card.waiting { background: var(--amber-light); border-color: var(--amber-mid); }
+  .client-card.cancelled { background: var(--red-light); border-color: var(--red-mid); }
   .avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; font-family: 'DM Mono', monospace; }
-  .owner-info { flex: 1; min-width: 0; }
-  .owner-name { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .owner-job { font-size: 12px; color: var(--text2); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .owner-time { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 11px; font-weight: 500; color: var(--text2); font-family: 'DM Mono', monospace; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 1px 7px; width: fit-content; }
-  .owner-time svg { width: 10px; height: 10px; flex-shrink: 0; }
+  .client-info { flex: 1; min-width: 0; }
+  .client-name { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .client-job { font-size: 12px; color: var(--text2); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .client-time { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 11px; font-weight: 500; color: var(--text2); font-family: 'DM Mono', monospace; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 1px 7px; width: fit-content; }
+  .client-time svg { width: 10px; height: 10px; flex-shrink: 0; }
   .status-tag { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; white-space: nowrap; letter-spacing: 0.2px; }
   .status-tag.pending { background: var(--surface); color: var(--text2); border: 1px solid var(--border); }
   .status-tag.accepted { background: var(--green-light); color: var(--green); border: 1px solid var(--green-mid); }
@@ -143,7 +143,7 @@
   .act-btn.rem:hover { background: var(--red-light); border-color: var(--red-mid); color: var(--red); }
   .act-btn.rem svg { width: 13px; height: 13px; vertical-align: middle; pointer-events: none; }
   @keyframes slideOut { from{opacity:1;transform:translateX(0);max-height:80px} to{opacity:0;transform:translateX(12px);max-height:0;padding:0;margin:0} }
-  .owner-card.removing { animation: slideOut 0.25s ease forwards; overflow: hidden; }
+  .client-card.removing { animation: slideOut 0.25s ease forwards; overflow: hidden; }
 
   /* ---- NOTIFICATION TOAST ---- */
   .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--text); color: white; padding: 10px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 500; box-shadow: var(--shadow-lg); z-index: 999; opacity: 0; transform: translateY(8px); transition: all 0.25s; pointer-events: none; }
@@ -158,6 +158,65 @@
     .topbar-right .company-pill { display: none; }
     .action-group { flex-direction: column; }
   }
+
+  /* ---- DARK MODE ---- */
+  body.dark {
+    --bg: #111110;
+    --surface: #1C1C1A;
+    --surface2: #242422;
+    --border: #2E2E2B;
+    --border2: #3D3D38;
+    --text: #F0EFE9;
+    --text2: #9E9C94;
+    --text3: #6B6860;
+    --blue: #4D7BFF;
+    --blue-light: #1A2340;
+    --blue-dark: #6B93FF;
+    --green: #3DBE74;
+    --green-light: #0F2A1C;
+    --green-mid: #1A5C38;
+    --amber: #F0A030;
+    --amber-light: #2A1E08;
+    --amber-mid: #5C3C0A;
+    --red: #F06060;
+    --red-light: #2A0F0F;
+    --red-mid: #5C1A1A;
+    --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+    --shadow-lg: 0 4px 16px rgba(0,0,0,0.4), 0 1px 4px rgba(0,0,0,0.2);
+  }
+  body.dark .form-input,
+  body.dark .inline-input { background: var(--surface2); color: var(--text); border-color: var(--border); }
+  body.dark .form-input:focus,
+  body.dark .inline-input:focus { background: var(--surface); border-color: var(--blue); }
+  body.dark .role-card { background: var(--surface2); }
+  body.dark .role-card.active { background: var(--blue-light); }
+  body.dark .tab-btn.active { background: var(--surface); color: var(--text); }
+  body.dark .client-time { background: var(--surface2); }
+  body.dark .act-btn.rem { background: var(--surface2); }
+  body.dark .toast { background: var(--surface); color: var(--text); border: 1px solid var(--border2); }
+
+  /* ---- PASSWORD FIELD ---- */
+  .pass-wrap { position: relative; }
+  .pass-wrap .form-input { padding-right: 40px; }
+  .eye-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text3); padding: 4px; display: flex; align-items: center; transition: color 0.15s; }
+  .eye-btn:hover { color: var(--text2); }
+  .eye-btn svg { width: 16px; height: 16px; }
+</style>
+  .dark-toggle {
+    width: 36px; height: 20px; border-radius: 10px;
+    background: var(--surface2); border: 1px solid var(--border2);
+    position: relative; cursor: pointer; transition: background 0.2s;
+    flex-shrink: 0; display: flex; align-items: center;
+  }
+  .dark-toggle .knob {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--text3); position: absolute; left: 2px;
+    transition: transform 0.2s, background 0.2s;
+  }
+  body.dark .dark-toggle { background: var(--blue-light); border-color: var(--blue); }
+  body.dark .dark-toggle .knob { transform: translateX(16px); background: var(--blue); }
+  .theme-wrap { display: flex; align-items: center; gap: 6px; }
+  .theme-icon { font-size: 13px; line-height: 1; }
 </style>
 </head>
 <body>
@@ -189,7 +248,12 @@
           </div>
           <div class="form-group">
             <label class="form-label">Company code</label>
-            <input class="form-input" id="login-code" type="text" placeholder="Your company secret code">
+            <div class="pass-wrap">
+              <input class="form-input" id="login-code" type="password" placeholder="Your company secret code">
+              <button type="button" class="eye-btn" onclick="toggleEye('login-code',this)" tabindex="-1">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label">Your role</label>
@@ -219,12 +283,22 @@
           </div>
           <div class="form-group">
             <label class="form-label">Choose a company code</label>
-            <input class="form-input" id="reg-code" type="text" placeholder="Secret code shared with your staff">
+            <div class="pass-wrap">
+              <input class="form-input" id="reg-code" type="password" placeholder="Secret code shared with your staff">
+              <button type="button" class="eye-btn" onclick="toggleEye('reg-code',this)" tabindex="-1">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
             <div class="form-hint">Share this code only with your handler and manager.</div>
           </div>
           <div class="form-group">
             <label class="form-label">Confirm code</label>
-            <input class="form-input" id="reg-code2" type="text" placeholder="Repeat the code">
+            <div class="pass-wrap">
+              <input class="form-input" id="reg-code2" type="password" placeholder="Repeat the code">
+              <button type="button" class="eye-btn" onclick="toggleEye('reg-code2',this)" tabindex="-1">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
           </div>
           <button class="btn-primary" onclick="doRegister()">Create Company Account →</button>
           <div class="err-msg" id="reg-err"></div>
@@ -246,36 +320,27 @@
     <div class="topbar-right">
       <span class="company-pill"><span style="opacity:0.6;font-weight:400;">Company:</span> <span id="h-company-name"></span></span>
       <span class="role-pill handler">Handler</span>
+      <div class="theme-wrap" title="Toggle dark mode">
+        <span class="theme-icon">☀️</span>
+        <div class="dark-toggle" onclick="toggleDark()"><div class="knob"></div></div>
+        <span class="theme-icon">🌙</span>
+      </div>
       <button class="btn-logout" onclick="logout()">Logout</button>
     </div>
   </div>
   <div class="dash-content">
     <div class="add-form-card">
-      <div class="card-title">Add owner to queue</div>
+      <div class="card-title">Add client to queue</div>
       <div class="add-row">
         <div class="inline-field">
-          <span class="inline-label">Owner name</span>
-          <input class="inline-input" id="h-name" type="text" placeholder="e.g. Mohamed Fouad" list="names-list" autocomplete="off">
-          <datalist id="names-list">
-            <option value="Mohamed Fouad">
-            <option value="Ahmed Hassan">
-            <option value="Sara Ali">
-            <option value="Khaled Omar">
-            <option value="Mona Tarek">
-            <option value="Youssef Nabil">
-            <option value="Nour Ibrahim">
-            <option value="Rania Mostafa">
-            <option value="Tamer Samir">
-            <option value="Dina Ashraf">
-            <option value="Omar Khalil">
-            <option value="Hana Adel">
-          </datalist>
+          <span class="inline-label">Client name</span>
+          <input class="inline-input" id="h-name" type="text" placeholder="e.g. Mohamed Fouad" autocomplete="off">
         </div>
         <div class="inline-field">
           <span class="inline-label">Job / unit</span>
-          <input class="inline-input" id="h-job" type="text" placeholder="e.g. Property Owner — Block A">
+          <input class="inline-input" id="h-job" type="text" placeholder="e.g. Property Client — Block A">
         </div>
-        <button class="btn-add" onclick="addOwner()">+ Add</button>
+        <button class="btn-add" onclick="addClient()">+ Add</button>
       </div>
     </div>
     <div class="queue-card">
@@ -298,6 +363,11 @@
     <div class="topbar-right">
       <span class="company-pill"><span style="opacity:0.6;font-weight:400;">Company:</span> <span id="m-company-name"></span></span>
       <span class="role-pill manager">Manager</span>
+      <div class="theme-wrap" title="Toggle dark mode">
+        <span class="theme-icon">☀️</span>
+        <div class="dark-toggle" onclick="toggleDark()"><div class="knob"></div></div>
+        <span class="theme-icon">🌙</span>
+      </div>
       <button class="btn-logout" onclick="logout()">Logout</button>
     </div>
   </div>
@@ -325,13 +395,72 @@ const AVATAR_PALETTES = [
   ['#F3F0FF','#5B3FD4'],['#FDEEF5','#A0346B'],['#E8F5FF','#1A5FA3']
 ];
 
+// ===================== PASSWORD EYE TOGGLE =====================
+function toggleEye(inputId, btn) {
+  const inp = document.getElementById(inputId);
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  // Swap icon: open eye <-> eye-off
+  btn.innerHTML = show
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+}
+
+// ===================== DARK MODE =====================
+function applyDark(isDark) {
+  document.body.classList.toggle('dark', isDark);
+}
+function toggleDark() {
+  const isDark = !document.body.classList.contains('dark');
+  applyDark(isDark);
+  localStorage.setItem('mds_dark', isDark ? '1' : '0');
+}
+// Restore on load
+applyDark(localStorage.getItem('mds_dark') === '1');
+
+// ===================== SOUND NOTIFICATIONS =====================
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function playTone(freq, type, duration, gain) {
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const vol = ctx.createGain();
+    osc.connect(vol);
+    vol.connect(ctx.destination);
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    vol.gain.setValueAtTime(gain, ctx.currentTime);
+    vol.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + duration);
+  } catch(e) {}
+}
+function playSound(event) {
+  // Sounds: accepted=chime, waiting=soft ping, cancelled=low drop, add=tick
+  if (event === 'accepted') {
+    playTone(880, 'sine', 0.18, 0.18);
+    setTimeout(() => playTone(1100, 'sine', 0.25, 0.14), 100);
+  } else if (event === 'waiting') {
+    playTone(600, 'sine', 0.25, 0.12);
+  } else if (event === 'cancelled') {
+    playTone(320, 'triangle', 0.28, 0.13);
+    setTimeout(() => playTone(240, 'triangle', 0.22, 0.09), 120);
+  } else if (event === 'add') {
+    playTone(750, 'sine', 0.12, 0.1);
+  }
+}
+
 // ===================== STORAGE HELPERS =====================
 function getTenants() { return JSON.parse(localStorage.getItem(DB_KEY) || '[]'); }
 function saveTenants(t) { localStorage.setItem(DB_KEY, JSON.stringify(t)); }
 function getOwners() { return JSON.parse(localStorage.getItem(OWNERS_KEY) || '[]'); }
 function saveOwners(o) { localStorage.setItem(OWNERS_KEY, JSON.stringify(o)); }
 
-function tenantOwners() {
+function tenantClients() {
   return getOwners().filter(o => o.tenantId === session.tenantId);
 }
 
@@ -343,7 +472,7 @@ channel.onmessage = (e) => {
 
   if (e.data.type === 'remove') {
     // Animate out then sync storage-driven re-render
-    const cards = document.querySelectorAll(`.owner-card[data-id="${e.data.id}"]`);
+    const cards = document.querySelectorAll(`.client-card[data-id="${e.data.id}"]`);
     cards.forEach(card => card.classList.add('removing'));
     setTimeout(() => { renderQueues(); }, 250);
     if (session.role === 'handler') showToast(`${e.data.name} removed from queue.`);
@@ -354,9 +483,11 @@ channel.onmessage = (e) => {
   if (e.data.type === 'status' && session.role === 'handler') {
     const map = { accepted: '✅ Accepted', waiting: '⏳ Waiting', cancelled: '❌ Cancelled' };
     showToast(`Manager updated: ${e.data.name} → ${map[e.data.status] || e.data.status}`);
+    playSound(e.data.status);
   }
   if (e.data.type === 'add' && session.role === 'manager') {
-    showToast(`New owner added: ${e.data.name}`);
+    showToast(`New client added: ${e.data.name}`);
+    playSound('add');
   }
 };
 
@@ -482,7 +613,7 @@ function enterDashboard() {
 }
 
 // ===================== QUEUE =====================
-function addOwner() {
+function addClient() {
   const nameEl = document.getElementById('h-name');
   const jobEl = document.getElementById('h-job');
   const name = nameEl.value.trim();
@@ -504,6 +635,7 @@ function addOwner() {
   renderQueues();
   broadcast({ type: 'add', name });
   showToast(`${name} added to queue.`);
+  playSound('add');
 }
 
 function setStatus(id, status, name) {
@@ -513,11 +645,12 @@ function setStatus(id, status, name) {
   saveOwners(owners);
   renderQueues();
   broadcast({ type: 'status', id, status, name });
+  playSound(status);
 }
 
-function removeOwner(id, name) {
+function removeClient(id, name) {
   // Animate out every card with this id across both queues, then delete from storage
-  const cards = document.querySelectorAll(`.owner-card[data-id="${id}"]`);
+  const cards = document.querySelectorAll(`.client-card[data-id="${id}"]`);
   cards.forEach(card => card.classList.add('removing'));
 
   setTimeout(() => {
@@ -540,14 +673,14 @@ const STATUS_CLASSES = ['pending','accepted','waiting','cancelled'];
 function createCardEl(o, idx, showActions) {
   const safeName = o.name.replace(/'/g,"\\'");
   const el = document.createElement('div');
-  el.className = `owner-card ${o.status}`;
+  el.className = `client-card ${o.status}`;
   el.dataset.id = o.id;
   el.innerHTML = `
     <div class="avatar" style="${avatarStyle(idx)}">${initials(o.name)}</div>
-    <div class="owner-info">
-      <div class="owner-name">${o.name}</div>
-      <div class="owner-job">${o.job}</div>
-      <div class="owner-time" data-ts="${o.createdAt}">
+    <div class="client-info">
+      <div class="client-name">${o.name}</div>
+      <div class="client-job">${o.job}</div>
+      <div class="client-time" data-ts="${o.createdAt}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Arrived ${clockTime(o.createdAt)} &middot; <span class="ago-label">${timeAgo(o.createdAt)}</span>
       </div>
@@ -561,9 +694,9 @@ function createCardEl(o, idx, showActions) {
       <button class="act-btn acc" onclick="setStatus('${o.id}','accepted','${safeName}')">Accept</button>
       <button class="act-btn wai" onclick="setStatus('${o.id}','waiting','${safeName}')">Wait</button>
       <button class="act-btn can" onclick="setStatus('${o.id}','cancelled','${safeName}')">Cancel</button>
-      <button class="act-btn rem" title="Remove" onclick="removeOwner('${o.id}','${safeName}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
+      <button class="act-btn rem" title="Remove" onclick="removeClient('${o.id}','${safeName}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
     </div>` : `
-    <button class="act-btn rem" title="Remove" onclick="removeOwner('${o.id}','${safeName}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
+    <button class="act-btn rem" title="Remove" onclick="removeClient('${o.id}','${safeName}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
     `}
   `;
   return el;
@@ -583,11 +716,11 @@ function renderQueue(containerId, countId, showActions) {
   const el = document.getElementById(containerId);
   const cnt = document.getElementById(countId);
   if (!el) return;
-  const owners = tenantOwners();
+  const owners = tenantClients();
   cnt.textContent = owners.length;
 
   if (owners.length === 0) {
-    el.innerHTML = `<div class="empty"><div class="empty-icon">📋</div>No owners in queue yet.</div>`;
+    el.innerHTML = `<div class="empty"><div class="empty-icon">📋</div>No clients in queue yet.</div>`;
     return;
   }
 
@@ -597,7 +730,7 @@ function renderQueue(containerId, countId, showActions) {
 
   // Build a map of existing DOM cards by owner id
   const existing = {};
-  el.querySelectorAll('.owner-card[data-id]').forEach(c => { existing[c.dataset.id] = c; });
+  el.querySelectorAll('.client-card[data-id]').forEach(c => { existing[c.dataset.id] = c; });
 
   // Track which ids are in the new data
   const seen = new Set();
@@ -639,13 +772,13 @@ document.addEventListener('keydown', e => {
     if (document.getElementById('panel-login').classList.contains('active')) doLogin();
     else if (document.getElementById('panel-register').classList.contains('active')) doRegister();
   }
-  if (e.key === 'Enter' && session?.role === 'handler') addOwner();
+  if (e.key === 'Enter' && session?.role === 'handler') addClient();
 });
 
 // Auto-refresh relative time labels every 60s — clock time stays static
 setInterval(() => {
   if (!session) return;
-  document.querySelectorAll('.owner-time[data-ts]').forEach(el => {
+  document.querySelectorAll('.client-time[data-ts]').forEach(el => {
     const ago = el.querySelector('.ago-label');
     if (ago) ago.textContent = timeAgo(Number(el.dataset.ts));
   });
