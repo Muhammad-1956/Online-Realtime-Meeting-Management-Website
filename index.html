@@ -124,7 +124,8 @@
   .owner-info { flex: 1; min-width: 0; }
   .owner-name { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .owner-job { font-size: 12px; color: var(--text2); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .owner-time { font-size: 10px; color: var(--text3); font-family: 'DM Mono', monospace; }
+  .owner-time { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 11px; font-weight: 500; color: var(--text2); font-family: 'DM Mono', monospace; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 1px 7px; width: fit-content; }
+  .owner-time svg { width: 10px; height: 10px; flex-shrink: 0; }
   .status-tag { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; white-space: nowrap; letter-spacing: 0.2px; }
   .status-tag.pending { background: var(--surface); color: var(--text2); border: 1px solid var(--border); }
   .status-tag.accepted { background: var(--green-light); color: var(--green); border: 1px solid var(--green-mid); }
@@ -138,6 +139,11 @@
   .act-btn.wai:hover { background: var(--amber-mid); }
   .act-btn.can { border-color: var(--red-mid); color: var(--red); background: var(--red-light); }
   .act-btn.can:hover { background: var(--red-mid); }
+  .act-btn.rem { border-color: var(--border2); color: var(--text2); background: var(--surface); margin-left: 4px; }
+  .act-btn.rem:hover { background: var(--red-light); border-color: var(--red-mid); color: var(--red); }
+  .act-btn.rem svg { width: 13px; height: 13px; vertical-align: middle; pointer-events: none; }
+  @keyframes slideOut { from{opacity:1;transform:translateX(0);max-height:80px} to{opacity:0;transform:translateX(12px);max-height:0;padding:0;margin:0} }
+  .owner-card.removing { animation: slideOut 0.25s ease forwards; overflow: hidden; }
 
   /* ---- NOTIFICATION TOAST ---- */
   .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--text); color: white; padding: 10px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 500; box-shadow: var(--shadow-lg); z-index: 999; opacity: 0; transform: translateY(8px); transition: all 0.25s; pointer-events: none; }
@@ -319,7 +325,17 @@ function tenantOwners() {
 const channel = new BroadcastChannel('meetingdesk_sync');
 channel.onmessage = (e) => {
   if (!session) return;
-  if (e.data.tenantId !== session.tenantId) return; // strict isolation
+  if (e.data.tenantId !== session.tenantId) return;
+
+  if (e.data.type === 'remove') {
+    // Animate out then sync storage-driven re-render
+    const cards = document.querySelectorAll(`.owner-card[data-id="${e.data.id}"]`);
+    cards.forEach(card => card.classList.add('removing'));
+    setTimeout(() => { renderQueues(); }, 250);
+    if (session.role === 'handler') showToast(`${e.data.name} removed from queue.`);
+    return;
+  }
+
   renderQueues();
   if (e.data.type === 'status' && session.role === 'handler') {
     const map = { accepted: '✅ Accepted', waiting: '⏳ Waiting', cancelled: '❌ Cancelled' };
@@ -366,11 +382,19 @@ function initials(name) {
   return name.trim().split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2) || '??';
 }
 
+function clockTime(ts) {
+  const d = new Date(ts);
+  const h = d.getHours().toString().padStart(2,'0');
+  const m = d.getMinutes().toString().padStart(2,'0');
+  return `${h}:${m}`;
+}
+
 function timeAgo(ts) {
   const diff = Math.floor((Date.now() - ts) / 1000);
   if (diff < 60) return 'just now';
   if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
-  return `${Math.floor(diff/3600)}h ago`;
+  if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+  return `${Math.floor(diff/86400)}d ago`;
 }
 
 // ===================== AUTH =====================
@@ -477,32 +501,66 @@ function setStatus(id, status, name) {
   broadcast({ type: 'status', id, status, name });
 }
 
+function removeOwner(id, name) {
+  // Animate out every card with this id across both queues, then delete from storage
+  const cards = document.querySelectorAll(`.owner-card[data-id="${id}"]`);
+  cards.forEach(card => card.classList.add('removing'));
+
+  setTimeout(() => {
+    const owners = getOwners().filter(o => o.id !== id);
+    saveOwners(owners);
+    renderQueues();
+    broadcast({ type: 'remove', id, name });
+    showToast(`${name} removed from queue.`);
+  }, 250); // matches slideOut animation duration
+}
+
 function avatarStyle(idx) {
   const [bg, color] = AVATAR_PALETTES[idx % AVATAR_PALETTES.length];
   return `background:${bg}; color:${color};`;
 }
 
-function ownerCardHTML(o, idx, showActions) {
-  const ini = initials(o.name);
-  const ago = timeAgo(o.createdAt);
-  const statusLabels = { pending: 'Pending', accepted: 'Accepted', waiting: 'Waiting', cancelled: 'Cancelled' };
-  return `
-    <div class="owner-card ${o.status}">
-      <div class="avatar" style="${avatarStyle(idx)}">${ini}</div>
-      <div class="owner-info">
-        <div class="owner-name">${o.name}</div>
-        <div class="owner-job">${o.job}</div>
-        <div class="owner-time">${ago}</div>
+const statusLabels = { pending: 'Pending', accepted: 'Accepted', waiting: 'Waiting', cancelled: 'Cancelled' };
+const STATUS_CLASSES = ['pending','accepted','waiting','cancelled'];
+
+function createCardEl(o, idx, showActions) {
+  const safeName = o.name.replace(/'/g,"\\'");
+  const el = document.createElement('div');
+  el.className = `owner-card ${o.status}`;
+  el.dataset.id = o.id;
+  el.innerHTML = `
+    <div class="avatar" style="${avatarStyle(idx)}">${initials(o.name)}</div>
+    <div class="owner-info">
+      <div class="owner-name">${o.name}</div>
+      <div class="owner-job">${o.job}</div>
+      <div class="owner-time" data-ts="${o.createdAt}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Arrived ${clockTime(o.createdAt)} &middot; <span class="ago-label">${timeAgo(o.createdAt)}</span>
       </div>
-      <span class="status-tag ${o.status}">${statusLabels[o.status]}</span>
-      ${showActions ? `
-      <div class="action-group">
-        <button class="act-btn acc" onclick="setStatus('${o.id}','accepted','${o.name.replace(/'/g,"\\'")}')">Accept</button>
-        <button class="act-btn wai" onclick="setStatus('${o.id}','waiting','${o.name.replace(/'/g,"\\'")}')">Wait</button>
-        <button class="act-btn can" onclick="setStatus('${o.id}','cancelled','${o.name.replace(/'/g,"\\'")}')">Cancel</button>
-      </div>` : ''}
     </div>
+    <span class="status-tag ${o.status}">${statusLabels[o.status]}</span>
+    ${showActions ? `
+    <div class="action-group">
+      <button class="act-btn acc" onclick="setStatus('${o.id}','accepted','${safeName}')">Accept</button>
+      <button class="act-btn wai" onclick="setStatus('${o.id}','waiting','${safeName}')">Wait</button>
+      <button class="act-btn can" onclick="setStatus('${o.id}','cancelled','${safeName}')">Cancel</button>
+      <button class="act-btn rem" title="Remove" onclick="removeOwner('${o.id}','${safeName}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
+    </div>` : `
+    <button class="act-btn rem" title="Remove" onclick="removeOwner('${o.id}','${safeName}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
+    `}
   `;
+  return el;
+}
+
+function updateCardEl(el, o) {
+  // Only update status-related parts — never touch the whole card
+  STATUS_CLASSES.forEach(s => el.classList.remove(s));
+  el.classList.add(o.status);
+  const tag = el.querySelector('.status-tag');
+  if (tag) {
+    tag.className = `status-tag ${o.status}`;
+    tag.textContent = statusLabels[o.status];
+  }
 }
 
 function renderQueue(containerId, countId, showActions) {
@@ -511,11 +569,38 @@ function renderQueue(containerId, countId, showActions) {
   if (!el) return;
   const owners = tenantOwners();
   cnt.textContent = owners.length;
+
   if (owners.length === 0) {
     el.innerHTML = `<div class="empty"><div class="empty-icon">📋</div>No owners in queue yet.</div>`;
     return;
   }
-  el.innerHTML = owners.map((o, i) => ownerCardHTML(o, i, showActions)).join('');
+
+  // Remove stale empty state if present
+  const emptyEl = el.querySelector('.empty');
+  if (emptyEl) el.innerHTML = '';
+
+  // Build a map of existing DOM cards by owner id
+  const existing = {};
+  el.querySelectorAll('.owner-card[data-id]').forEach(c => { existing[c.dataset.id] = c; });
+
+  // Track which ids are in the new data
+  const seen = new Set();
+  owners.forEach((o, idx) => {
+    seen.add(o.id);
+    if (existing[o.id]) {
+      // Card already in DOM — only patch status, no re-render
+      updateCardEl(existing[o.id], o);
+    } else {
+      // Brand new card — create and animate in
+      const newCard = createCardEl(o, idx, showActions);
+      el.appendChild(newCard);
+    }
+  });
+
+  // Remove cards for owners that no longer exist
+  Object.keys(existing).forEach(id => {
+    if (!seen.has(id)) existing[id].remove();
+  });
 }
 
 function renderQueues() {
@@ -541,8 +626,14 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && session?.role === 'handler') addOwner();
 });
 
-// Auto-refresh time labels
-setInterval(() => { if (session) renderQueues(); }, 30000);
+// Auto-refresh relative time labels every 60s — clock time stays static
+setInterval(() => {
+  if (!session) return;
+  document.querySelectorAll('.owner-time[data-ts]').forEach(el => {
+    const ago = el.querySelector('.ago-label');
+    if (ago) ago.textContent = timeAgo(Number(el.dataset.ts));
+  });
+}, 60000);
 
 // Listen for localStorage changes from other tabs (fallback for older browsers)
 window.addEventListener('storage', e => {

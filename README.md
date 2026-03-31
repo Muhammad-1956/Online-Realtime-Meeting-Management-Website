@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # MeetingDesk — Real-time Meeting Queue Management
 
 A multi-tenant meeting queue system. Each company registers independently and gets a fully isolated workspace.
@@ -55,7 +54,3 @@ Open handler and manager in two separate browser tabs — status changes update 
 
 ## Upgrading to Angular + .NET
 See the architecture notes in the conversation for the full SignalR + JWT multi-tenant backend design.
-=======
-# Online-Realtime-Meeting-Management-Website
-The app is fully self-contained — no backend, no build tools needed. It uses localStorage to store company registrations and owner queues, and the BroadcastChannel API for real-time sync between tabs (so handler and manager see each other's updates live). 
->>>>>>> b1ec98d696babecd6838400f25b3187436d4f1ea
