@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iOCIgZmlsbD0iIzJCNUNFNiIvPgogIDxwYXRoIGQ9Ik0xNyAxM0g5YTEgMSAwIDAwMCAyaDhhMSAxIDAgMDAwLTJ6bTItNUg3YTMgMyAwIDAwLTMgM3YxMGEzIDMgMCAwMDMgM2gxMmEzIDMgMCAwMDMtM1YxMWEzIDMgMCAwMC0zLTN6bTEgMTNhMSAxIDAgMDEtMSAxSDdhMSAxIDAgMDEtMS0xVjExYTEgMSAwIDAxMS0xaDEyYTEgMSAwIDAxMSAxeiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+">
+  <title>MeetingDesk — Real-time Meeting Queue</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+/* ============================================================
+   MeetingDesk — styles.css
+   Compiled from styles.scss
+   ============================================================ */
+
+/* ---- CSS CUSTOM PROPERTIES (mirrors SCSS $vars) ---------- */
+:root {
+  --bg:           #F7F6F2;
+  --surface:      #FFFFFF;
+  --surface2:     #F0EFE9;
+  --border:       #E2E0D8;
+  --border2:      #CCCAB8;
+  --text:         #1A1916;
+  --text2:        #6B6860;
+  --text3:        #9E9C94;
+  --blue:         #2B5CE6;
+  --blue-light:   #EBF0FD;
+  --blue-dark:    #1A3FA3;
+  --green:        #1A7A4A;
+  --green-light:  #E8F5EE;
+  --green-mid:    #A8D9BC;
+  --amber:        #B85C00;
+  --amber-light:  #FEF3E2;
+  --amber-mid:    #F5C97A;
+  --red:          #C42B2B;
+  --red-light:    #FDECEC;
+  --red-mid:      #F0A5A5;
+  --radius:       10px;
+  --radius-lg:    16px;
+  --shadow:       0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-lg:    0 4px 16px rgba(0,0,0,.08), 0 1px 4px rgba(0,0,0,.04);
+  --font-sans:    'DM Sans', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+}
+
+/* ---- ANIMATIONS ------------------------------------------ */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideOut {
+  from { opacity: 1; transform: translateX(0);    max-height: 80px; }
+  to   { opacity: 0; transform: translateX(12px); max-height: 0; padding: 0; margin: 0; }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25%       { transform: translateX(-4px); }
+  75%       { transform: translateX(4px); }
+}
+
+/* ---- BASE ------------------------------------------------ */
+*,
+*::before,
+*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+input,
+button,
+select { font-family: var(--font-sans); }
+
+/* ---- SCREENS --------------------------------------------- */
+.screen {
+  display: none;
+  min-height: 100vh;
+}
+.screen.active {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- LANDING --------------------------------------------- */
+#landing {
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.landing-wrap {
+  width: 100%;
+  max-width: 440px;
+}
+
+.landing-title {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  line-height: 1.25;
+  margin-bottom: 0.5rem;
+}
+
+.landing-sub {
+  font-size: 15px;
+  color: var(--text2);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+/* ---- BRAND ----------------------------------------------- */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 2.5rem;
+}
+
+.brand-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.brand-dot svg { width: 18px; height: 18px; fill: white; }
+
+.brand-name {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+
+/* ---- TAB ROW --------------------------------------------- */
+.tab-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--surface2);
+  border-radius: var(--radius);
+  padding: 4px;
+  margin-bottom: 1.5rem;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text2);
+  transition: all 0.15s;
+}
+.tab-btn.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+/* ---- CARD ------------------------------------------------ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+/* ---- FORM ------------------------------------------------ */
+.form-group { margin-bottom: 1rem; }
+
+.form-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text2);
+  margin-bottom: 5px;
+  display: block;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.form-input:focus { border-color: var(--blue); background: white; }
+.form-input.error { border-color: var(--red); }
+
+.form-hint {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 5px;
+}
+
+/* ---- ROLE GRID ------------------------------------------- */
+.role-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+
+.role-card {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+  background: var(--bg);
+}
+.role-card:hover  { border-color: var(--border2); }
+.role-card.active { border-color: var(--blue); background: var(--blue-light); }
+
+.role-icon { font-size: 20px; margin-bottom: 5px; }
+.role-name { font-size: 13px; font-weight: 500; }
+.role-desc { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+/* ---- BUTTONS --------------------------------------------- */
+.btn-primary {
+  width: 100%;
+  padding: 11px;
+  background: var(--blue);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  letter-spacing: -0.1px;
+}
+.btn-primary:hover { background: var(--blue-dark); }
+
+.divider {
+  text-align: center;
+  color: var(--text3);
+  font-size: 12px;
+  margin: 1.25rem 0;
+  position: relative;
+}
+.divider::before,
+.divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 42%;
+  height: 1px;
+  background: var(--border);
+}
+.divider::before { left: 0; }
+.divider::after  { right: 0; }
+
+.err-msg {
+  font-size: 12px;
+  color: var(--red);
+  margin-top: 8px;
+  text-align: center;
+  min-height: 16px;
+}
+
+/* ---- TAB PANEL ------------------------------------------- */
+.tab-panel         { display: none; }
+.tab-panel.active  { display: block; }
+
+/* ---- PASSWORD EYE ---------------------------------------- */
+.pass-wrap          { position: relative; }
+.pass-wrap .form-input { padding-right: 40px; }
+
+.eye-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text3);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+}
+.eye-btn:hover { color: var(--text2); }
+.eye-btn svg   { width: 16px; height: 16px; }
+
+/* ---- TOPBAR ---------------------------------------------- */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1.25rem;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar-brand {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.live-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--green);
+  font-weight: 500;
+  background: var(--green-light);
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 1.5s infinite;
+}
+
+.company-pill {
+  background: var(--blue-light);
+  color: var(--blue);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.role-pill {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.role-pill.handler { background: #F3F0FF; color: #5B3FD4; }
+.role-pill.manager { background: var(--green-light); color: var(--green); }
+
+.btn-logout {
+  font-size: 13px;
+  color: var(--text2);
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 5px 12px;
+  background: none;
+  transition: all 0.15s;
+}
+.btn-logout:hover { background: var(--surface2); }
+
+/* ---- DASHBOARD CONTENT ----------------------------------- */
+.dash-content {
+  flex: 1;
+  padding: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ---- ADD FORM CARD --------------------------------------- */
+.add-form-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 1rem;
+}
+
+.add-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.inline-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.inline-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.inline-input {
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 13px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.inline-input:focus { border-color: var(--blue); background: white; }
+.inline-input.error { border-color: var(--red); animation: shake 0.3s; }
+
+.btn-add {
+  padding: 9px 18px;
+  background: var(--blue);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+  height: 38px;
+}
+.btn-add:hover { background: var(--blue-dark); }
+
+/* ---- QUEUE CARD ------------------------------------------ */
+.queue-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+  flex: 1;
+}
+
+.queue-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.queue-title {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+
+.count-badge {
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--surface2);
+  color: var(--text2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2px 9px;
+}
+
+.queue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text3);
+  font-size: 14px;
+}
+.empty-icon { font-size: 32px; margin-bottom: 0.5rem; opacity: 0.4; }
+
+/* ---- CLIENT CARD ----------------------------------------- */
+.client-card {
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: background 0.35s ease, border-color 0.35s ease;
+  animation: slideIn 0.25s ease;
+}
+
+.client-card.pending   { background: var(--surface2);    border-color: var(--border); }
+.client-card.accepted  { background: var(--green-light); border-color: var(--green-mid); }
+.client-card.waiting   { background: var(--amber-light); border-color: var(--amber-mid); }
+.client-card.cancelled { background: var(--red-light);   border-color: var(--red-mid); }
+.client-card.removing  { animation: slideOut 0.25s ease forwards; overflow: hidden; }
+
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+}
+
+.client-info { flex: 1; min-width: 0; }
+
+.client-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.client-job {
+  font-size: 12px;
+  color: var(--text2);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.client-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text2);
+  font-family: var(--font-mono);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1px 7px;
+  width: fit-content;
+}
+.client-time svg { width: 10px; height: 10px; flex-shrink: 0; }
+
+/* ---- STATUS TAG ------------------------------------------ */
+.status-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+}
+.status-tag.pending   { background: var(--surface);      color: var(--text2);  border: 1px solid var(--border); }
+.status-tag.accepted  { background: var(--green-light);  color: var(--green);  border: 1px solid var(--green-mid); }
+.status-tag.waiting   { background: var(--amber-light);  color: var(--amber);  border: 1px solid var(--amber-mid); }
+.status-tag.cancelled { background: var(--red-light);    color: var(--red);    border: 1px solid var(--red-mid); }
+
+/* ---- ACTION BUTTONS -------------------------------------- */
+.action-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.act-btn {
+  padding: 5px 10px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid;
+  transition: all 0.12s;
+  letter-spacing: 0.2px;
+}
+
+.act-btn.acc { border-color: var(--green-mid); color: var(--green); background: var(--green-light); }
+.act-btn.acc:hover { background: var(--green-mid); }
+
+.act-btn.wai { border-color: var(--amber-mid); color: var(--amber); background: var(--amber-light); }
+.act-btn.wai:hover { background: var(--amber-mid); }
+
+.act-btn.can { border-color: var(--red-mid); color: var(--red); background: var(--red-light); }
+.act-btn.can:hover { background: var(--red-mid); }
+
+.act-btn.rem {
+  border-color: var(--border2);
+  color: var(--text2);
+  background: var(--surface);
+  margin-left: 4px;
+}
+.act-btn.rem:hover { background: var(--red-light); border-color: var(--red-mid); color: var(--red); }
+.act-btn.rem svg   { width: 13px; height: 13px; vertical-align: middle; pointer-events: none; }
+
+/* ---- TOAST ----------------------------------------------- */
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background: var(--text);
+  color: white;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  z-index: 999;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 0.25s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* ---- RESPONSIVE ------------------------------------------ */
+@media (max-width: 520px) {
+  .add-row                    { grid-template-columns: 1fr; }
+  .topbar-right .company-pill { display: none; }
+  .action-group               { flex-direction: column; }
+}
+
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       LANDING SCREEN
+       ============================================================ -->
+  <div class="screen active" id="landing">
+    <div style="flex:1; display:flex; align-items:center; justify-content:center; padding:2rem;">
+      <div class="landing-wrap">
+
+        <!-- Brand -->
+        <div class="brand">
+          <div class="brand-dot">
+            <svg viewBox="0 0 24 24">
+              <path d="M17 11H7a1 1 0 000 2h10a1 1 0 000-2zm2-7H5a3 3 0 00-3
+                       3v12a3 3 0 003 3h14a3 3 0 003-3V7a3 3 0 00-3-3zm1 15a1
+                       1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h14a1 1 0 011 1z"/>
+            </svg>
+          </div>
+          <span class="brand-name">MeetingDesk</span>
+        </div>
+
+        <h1 class="landing-title">Real-time meeting queue,<br>for every company.</h1>
+        <p class="landing-sub">
+          Each company manages their own isolated queue.
+          Handlers add owners, managers respond in real time.
+        </p>
+
+        <!-- Tab switcher -->
+        <div class="tab-row">
+          <button class="tab-btn active" onclick="switchTab('login')">Sign in</button>
+          <button class="tab-btn"        onclick="switchTab('register')">Register company</button>
+        </div>
+
+        <div class="card">
+
+          <!-- LOGIN PANEL -->
+          <div class="tab-panel active" id="panel-login">
+            <div class="form-group">
+              <label class="form-label" for="login-company">Company name</label>
+              <input class="form-input" id="login-company" type="text"
+                     placeholder="e.g. Al Noor Properties" autocomplete="organization">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="login-code">Company code</label>
+              <div class="pass-wrap">
+                <input class="form-input" id="login-code" type="password"
+                       placeholder="Your company secret code" autocomplete="current-password">
+                <button type="button" class="eye-btn"
+                        onclick="toggleEye('login-code', this)" tabindex="-1"
+                        aria-label="Toggle password visibility">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Your role</label>
+              <div class="role-grid">
+                <div class="role-card active" id="role-handler" onclick="selectRole('handler')">
+                  <div class="role-icon">🗂</div>
+                  <div class="role-name">Handler</div>
+                  <div class="role-desc">Add owners to queue</div>
+                </div>
+                <div class="role-card" id="role-manager" onclick="selectRole('manager')">
+                  <div class="role-icon">👔</div>
+                  <div class="role-name">Manager</div>
+                  <div class="role-desc">Review &amp; respond</div>
+                </div>
+              </div>
+            </div>
+            <button class="btn-primary" onclick="doLogin()">Enter Dashboard →</button>
+            <div class="err-msg" id="login-err" role="alert"></div>
+          </div><!-- /panel-login -->
+
+          <!-- REGISTER PANEL -->
+          <div class="tab-panel" id="panel-register">
+            <div class="form-group">
+              <label class="form-label" for="reg-company">Company name</label>
+              <input class="form-input" id="reg-company" type="text"
+                     placeholder="e.g. Al Noor Properties" autocomplete="organization">
+              <div class="form-hint">Must be unique — this is your company identifier.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="reg-code">Choose a company code</label>
+              <div class="pass-wrap">
+                <input class="form-input" id="reg-code" type="password"
+                       placeholder="Secret code shared with your staff" autocomplete="new-password">
+                <button type="button" class="eye-btn"
+                        onclick="toggleEye('reg-code', this)" tabindex="-1"
+                        aria-label="Toggle password visibility">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="form-hint">Share this code only with your handler and manager.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="reg-code2">Confirm code</label>
+              <div class="pass-wrap">
+                <input class="form-input" id="reg-code2" type="password"
+                       placeholder="Repeat the code" autocomplete="new-password">
+                <button type="button" class="eye-btn"
+                        onclick="toggleEye('reg-code2', this)" tabindex="-1"
+                        aria-label="Toggle password visibility">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <button class="btn-primary" onclick="doRegister()">Create Company Account →</button>
+            <div class="err-msg" id="reg-err" role="alert"></div>
+          </div><!-- /panel-register -->
+
+        </div><!-- /card -->
+
+        <p style="text-align:center; font-size:12px; color:var(--text3); margin-top:1rem;">
+          Each company's data is fully isolated and private.
+        </p>
+
+      </div><!-- /landing-wrap -->
+    </div>
+  </div><!-- /landing -->
+
+
+  <!-- ============================================================
+       HANDLER DASHBOARD
+       ============================================================ -->
+  <div class="screen" id="handler-screen">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-brand">MeetingDesk</span>
+        <span class="live-badge">
+          <span class="live-dot"></span>Live
+        </span>
+      </div>
+      <div class="topbar-right">
+        <span class="company-pill">
+          <span style="opacity:.6; font-weight:400;">Company:</span>
+          <span id="h-company-name"></span>
+        </span>
+        <span class="role-pill handler">Handler</span>
+        <button class="btn-logout" onclick="logout()">Logout</button>
+      </div>
+    </header>
+
+    <main class="dash-content">
+      <!-- Add client form -->
+      <section class="add-form-card" aria-label="Add client to queue">
+        <div class="card-title">Add client to queue</div>
+        <div class="add-row">
+          <div class="inline-field">
+            <label class="inline-label" for="h-name">Client name</label>
+            <input class="inline-input" id="h-name" type="text"
+                   placeholder="e.g. Mohamed Fouad" autocomplete="off">
+          </div>
+          <div class="inline-field">
+            <label class="inline-label" for="h-job">Job / unit</label>
+            <input class="inline-input" id="h-job" type="text"
+                   placeholder="e.g. Property Client — Block A" autocomplete="off">
+          </div>
+          <button class="btn-add" onclick="addClient()">+ Add</button>
+        </div>
+      </section>
+
+      <!-- Queue -->
+      <section class="queue-card" aria-label="Queue status">
+        <div class="queue-header">
+          <span class="queue-title">Queue status</span>
+          <span class="count-badge" id="h-count">0</span>
+        </div>
+        <div class="queue-list" id="h-queue"></div>
+      </section>
+    </main>
+  </div><!-- /handler-screen -->
+
+
+  <!-- ============================================================
+       MANAGER DASHBOARD
+       ============================================================ -->
+  <div class="screen" id="manager-screen">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-brand">MeetingDesk</span>
+        <span class="live-badge">
+          <span class="live-dot"></span>Live
+        </span>
+      </div>
+      <div class="topbar-right">
+        <span class="company-pill">
+          <span style="opacity:.6; font-weight:400;">Company:</span>
+          <span id="m-company-name"></span>
+        </span>
+        <span class="role-pill manager">Manager</span>
+        <button class="btn-logout" onclick="logout()">Logout</button>
+      </div>
+    </header>
+
+    <main class="dash-content">
+      <section class="queue-card" aria-label="Awaiting meeting list">
+        <div class="queue-header">
+          <span class="queue-title">Awaiting Meeting List</span>
+          <span class="count-badge" id="m-count">0</span>
+        </div>
+        <div class="queue-list" id="m-queue"></div>
+      </section>
+    </main>
+  </div><!-- /manager-screen -->
+
+
+  <!-- TOAST -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+// ============================================================
+// MeetingDesk — app.js
+// ============================================================
+
+// ===================== STATE =====================
+const DB_KEY    = 'meetingdesk_tenants';
+const OWNERS_KEY = 'meetingdesk_owners';
+let session = null; // { tenantId, companyName, role }
+
+const AVATAR_PALETTES = [
+  ['#EBF0FD', '#1A3FA3'],
+  ['#E8F5EE', '#1A7A4A'],
+  ['#FEF3E2', '#B85C00'],
+  ['#F3F0FF', '#5B3FD4'],
+  ['#FDEEF5', '#A0346B'],
+  ['#E8F5FF', '#1A5FA3'],
+];
+
+// ===================== PASSWORD EYE TOGGLE =====================
+function toggleEye(inputId, btn) {
+  const inp  = document.getElementById(inputId);
+  const show = inp.type === 'password';
+  inp.type   = show ? 'text' : 'password';
+  btn.innerHTML = show
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round">
+         <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8
+                  a18.45 18.45 0 015.06-5.94"/>
+         <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8
+                  a18.5 18.5 0 01-2.16 3.19"/>
+         <line x1="1" y1="1" x2="23" y2="23"/>
+       </svg>`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round">
+         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+         <circle cx="12" cy="12" r="3"/>
+       </svg>`;
+}
+
+// ===================== SOUND NOTIFICATIONS =====================
+let audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playTone(freq, type, duration, gain) {
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const vol = ctx.createGain();
+    osc.connect(vol);
+    vol.connect(ctx.destination);
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    vol.gain.setValueAtTime(gain, ctx.currentTime);
+    vol.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + duration);
+  } catch (e) { /* silently ignore */ }
+}
+
+function playSound(event) {
+  if (event === 'accepted') {
+    playTone(880,  'sine',     0.18, 0.18);
+    setTimeout(() => playTone(1100, 'sine', 0.25, 0.14), 100);
+  } else if (event === 'waiting') {
+    playTone(600,  'sine',     0.25, 0.12);
+  } else if (event === 'cancelled') {
+    playTone(320,  'triangle', 0.28, 0.13);
+    setTimeout(() => playTone(240, 'triangle', 0.22, 0.09), 120);
+  } else if (event === 'add') {
+    playTone(750,  'sine',     0.12, 0.10);
+  }
+}
+
+// ===================== STORAGE HELPERS =====================
+function getTenants()    { return JSON.parse(localStorage.getItem(DB_KEY)     || '[]'); }
+function saveTenants(t)  { localStorage.setItem(DB_KEY,     JSON.stringify(t)); }
+function getOwners()     { return JSON.parse(localStorage.getItem(OWNERS_KEY) || '[]'); }
+function saveOwners(o)   { localStorage.setItem(OWNERS_KEY, JSON.stringify(o)); }
+
+function tenantClients() {
+  return getOwners().filter(o => o.tenantId === session.tenantId);
+}
+
+// ===================== REAL-TIME SYNC (BroadcastChannel) =====================
+const channel = new BroadcastChannel('meetingdesk_sync');
+
+channel.onmessage = (e) => {
+  if (!session) return;
+  if (e.data.tenantId !== session.tenantId) return;
+
+  if (e.data.type === 'remove') {
+    const cards = document.querySelectorAll(`.client-card[data-id="${e.data.id}"]`);
+    cards.forEach(card => card.classList.add('removing'));
+    setTimeout(() => { renderQueues(); }, 250);
+    if (session.role === 'handler') showToast(`${e.data.name} removed from queue.`);
+    return;
+  }
+
+  renderQueues();
+
+  if (e.data.type === 'status' && session.role === 'handler') {
+    const map = { accepted: '✅ Accepted', waiting: '⏳ Waiting', cancelled: '❌ Cancelled' };
+    showToast(`Manager updated: ${e.data.name} → ${map[e.data.status] || e.data.status}`);
+    playSound(e.data.status);
+  }
+  if (e.data.type === 'add' && session.role === 'manager') {
+    showToast(`New client added: ${e.data.name}`);
+    playSound('add');
+  }
+};
+
+function broadcast(data) {
+  channel.postMessage({ ...data, tenantId: session.tenantId });
+}
+
+// ===================== UI HELPERS =====================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) =>
+    b.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'))
+  );
+  document.getElementById('panel-login').classList.toggle('active',    tab === 'login');
+  document.getElementById('panel-register').classList.toggle('active', tab === 'register');
+}
+
+function selectRole(role) {
+  document.getElementById('role-handler').classList.toggle('active', role === 'handler');
+  document.getElementById('role-manager').classList.toggle('active', role === 'manager');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function getSelectedRole() {
+  return document.getElementById('role-handler').classList.contains('active') ? 'handler' : 'manager';
+}
+
+function initials(name) {
+  return name.trim().split(' ').map(w => w[0] || '').join('').toUpperCase().slice(0, 2) || '??';
+}
+
+function clockTime(ts) {
+  const d = new Date(ts);
+  const h = d.getHours().toString().padStart(2, '0');
+  const m = d.getMinutes().toString().padStart(2, '0');
+  return `${h}:${m}`;
+}
+
+function timeAgo(ts) {
+  const diff = Math.floor((Date.now() - ts) / 1000);
+  if (diff < 60)    return 'just now';
+  if (diff < 3600)  return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
+}
+
+// ===================== AUTH =====================
+function hashCode(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
+  return h.toString(16);
+}
+
+function doRegister() {
+  const company = document.getElementById('reg-company').value.trim();
+  const code    = document.getElementById('reg-code').value;
+  const code2   = document.getElementById('reg-code2').value;
+  const err     = document.getElementById('reg-err');
+  err.textContent = '';
+
+  if (!company)          { err.textContent = 'Company name is required.';        return; }
+  if (code.length < 4)   { err.textContent = 'Code must be at least 4 characters.'; return; }
+  if (code !== code2)    { err.textContent = 'Codes do not match.';              return; }
+
+  const tenants = getTenants();
+  if (tenants.find(t => t.name.toLowerCase() === company.toLowerCase())) {
+    err.textContent = 'A company with this name already exists.'; return;
+  }
+
+  const tenant = { id: crypto.randomUUID(), name: company, codeHash: hashCode(code) };
+  tenants.push(tenant);
+  saveTenants(tenants);
+
+  showToast('Company registered! You can now sign in.');
+  switchTab('login');
+  document.getElementById('login-company').value = company;
+}
+
+function doLogin() {
+  const company = document.getElementById('login-company').value.trim();
+  const code    = document.getElementById('login-code').value;
+  const role    = getSelectedRole();
+  const err     = document.getElementById('login-err');
+  err.textContent = '';
+
+  if (!company || !code) { err.textContent = 'Please fill in all fields.'; return; }
+
+  const tenants = getTenants();
+  const tenant  = tenants.find(t => t.name.toLowerCase() === company.toLowerCase());
+  if (!tenant || tenant.codeHash !== hashCode(code)) {
+    err.textContent = 'Company not found or incorrect code.'; return;
+  }
+
+  session = { tenantId: tenant.id, companyName: tenant.name, role };
+  sessionStorage.setItem('mds_session', JSON.stringify(session));
+  enterDashboard();
+}
+
+function logout() {
+  session = null;
+  sessionStorage.removeItem('mds_session');
+  showScreen('landing');
+}
+
+function enterDashboard() {
+  if (session.role === 'handler') {
+    document.getElementById('h-company-name').textContent = session.companyName;
+    showScreen('handler-screen');
+  } else {
+    document.getElementById('m-company-name').textContent = session.companyName;
+    showScreen('manager-screen');
+  }
+  renderQueues();
+}
+
+// ===================== QUEUE =====================
+function addClient() {
+  const nameEl = document.getElementById('h-name');
+  const jobEl  = document.getElementById('h-job');
+  const name   = nameEl.value.trim();
+  const job    = jobEl.value.trim();
+
+  if (!name || !job) {
+    if (!name) nameEl.classList.add('error');
+    if (!job)  jobEl.classList.add('error');
+    setTimeout(() => { nameEl.classList.remove('error'); jobEl.classList.remove('error'); }, 800);
+    return;
+  }
+
+  const owners = getOwners();
+  const owner  = {
+    id: crypto.randomUUID(),
+    tenantId: session.tenantId,
+    name,
+    job,
+    status: 'pending',
+    createdAt: Date.now(),
+  };
+  owners.push(owner);
+  saveOwners(owners);
+
+  nameEl.value = '';
+  jobEl.value  = '';
+  renderQueues();
+  broadcast({ type: 'add', name });
+  showToast(`${name} added to queue.`);
+  playSound('add');
+}
+
+function setStatus(id, status, name) {
+  const owners = getOwners();
+  const o = owners.find(x => x.id === id);
+  if (o) o.status = status;
+  saveOwners(owners);
+  renderQueues();
+  broadcast({ type: 'status', id, status, name });
+  playSound(status);
+}
+
+function removeClient(id, name) {
+  const cards = document.querySelectorAll(`.client-card[data-id="${id}"]`);
+  cards.forEach(card => card.classList.add('removing'));
+
+  setTimeout(() => {
+    const owners = getOwners().filter(o => o.id !== id);
+    saveOwners(owners);
+    renderQueues();
+    broadcast({ type: 'remove', id, name });
+    showToast(`${name} removed from queue.`);
+  }, 250);
+}
+
+function avatarStyle(idx) {
+  const [bg, color] = AVATAR_PALETTES[idx % AVATAR_PALETTES.length];
+  return `background:${bg}; color:${color};`;
+}
+
+const statusLabels  = { pending: 'Pending', accepted: 'Accepted', waiting: 'Waiting', cancelled: 'Cancelled' };
+const STATUS_CLASSES = ['pending', 'accepted', 'waiting', 'cancelled'];
+
+function createCardEl(o, idx, showActions) {
+  const safeName = o.name.replace(/'/g, "\\'");
+  const el = document.createElement('div');
+  el.className  = `client-card ${o.status}`;
+  el.dataset.id = o.id;
+
+  el.innerHTML = `
+    <div class="avatar" style="${avatarStyle(idx)}">${initials(o.name)}</div>
+    <div class="client-info">
+      <div class="client-name">${o.name}</div>
+      <div class="client-job">${o.job}</div>
+      <div class="client-time" data-ts="${o.createdAt}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        Arrived ${clockTime(o.createdAt)} &middot; <span class="ago-label">${timeAgo(o.createdAt)}</span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;">
+      <span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;color:var(--text3);">Status</span>
+      <span class="status-tag ${o.status}">${statusLabels[o.status]}</span>
+    </div>
+    ${showActions ? `
+    <div class="action-group">
+      <button class="act-btn acc" onclick="setStatus('${o.id}','accepted','${safeName}')">Accept</button>
+      <button class="act-btn wai" onclick="setStatus('${o.id}','waiting','${safeName}')">Wait</button>
+      <button class="act-btn can" onclick="setStatus('${o.id}','cancelled','${safeName}')">Cancel</button>
+      <button class="act-btn rem" title="Remove" onclick="removeClient('${o.id}','${safeName}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+          <path d="M10 11v6M14 11v6"/>
+          <path d="M9 6V4h6v2"/>
+        </svg>
+      </button>
+    </div>` : `
+    <button class="act-btn rem" title="Remove" onclick="removeClient('${o.id}','${safeName}')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"/>
+        <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+        <path d="M10 11v6M14 11v6"/>
+        <path d="M9 6V4h6v2"/>
+      </svg>
+    </button>
+    `}
+  `;
+  return el;
+}
+
+function updateCardEl(el, o) {
+  STATUS_CLASSES.forEach(s => el.classList.remove(s));
+  el.classList.add(o.status);
+  const tag = el.querySelector('.status-tag');
+  if (tag) {
+    tag.className   = `status-tag ${o.status}`;
+    tag.textContent = statusLabels[o.status];
+  }
+}
+
+function renderQueue(containerId, countId, showActions) {
+  const el  = document.getElementById(containerId);
+  const cnt = document.getElementById(countId);
+  if (!el) return;
+
+  const owners = tenantClients();
+  cnt.textContent = owners.length;
+
+  if (owners.length === 0) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">📋</div>No clients in queue yet.</div>`;
+    return;
+  }
+
+  // Remove stale empty state if present
+  const emptyEl = el.querySelector('.empty');
+  if (emptyEl) el.innerHTML = '';
+
+  // Build a map of existing DOM cards by owner id
+  const existing = {};
+  el.querySelectorAll('.client-card[data-id]').forEach(c => { existing[c.dataset.id] = c; });
+
+  const seen = new Set();
+  owners.forEach((o, idx) => {
+    seen.add(o.id);
+    if (existing[o.id]) {
+      updateCardEl(existing[o.id], o);
+    } else {
+      el.appendChild(createCardEl(o, idx, showActions));
+    }
+  });
+
+  // Remove cards for owners that no longer exist
+  Object.keys(existing).forEach(id => {
+    if (!seen.has(id)) existing[id].remove();
+  });
+}
+
+function renderQueues() {
+  if (!session) return;
+  renderQueue('h-queue', 'h-count', false);
+  renderQueue('m-queue', 'm-count', true);
+}
+
+// ===================== INIT =====================
+// Restore session on reload
+const saved = sessionStorage.getItem('mds_session');
+if (saved) {
+  session = JSON.parse(saved);
+  enterDashboard();
+}
+
+// Enter key support
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('panel-login').classList.contains('active'))    doLogin();
+    else if (document.getElementById('panel-register').classList.contains('active')) doRegister();
+  }
+  if (e.key === 'Enter' && session?.role === 'handler') addClient();
+});
+
+// Auto-refresh relative time labels every 60s
+setInterval(() => {
+  if (!session) return;
+  document.querySelectorAll('.client-time[data-ts]').forEach(el => {
+    const ago = el.querySelector('.ago-label');
+    if (ago) ago.textContent = timeAgo(Number(el.dataset.ts));
+  });
+}, 60_000);
+
+// Listen for localStorage changes from other tabs
+window.addEventListener('storage', e => {
+  if (e.key === OWNERS_KEY && session) renderQueues();
+});
+
+  </script>
+</body>
+</html>
